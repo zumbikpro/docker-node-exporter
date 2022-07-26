@@ -1,0 +1,41 @@
+version: "3.9"
+
+########################### NETWORKS
+
+networks:
+  t2_proxy:
+    name: t2_proxy
+    attachable: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.90.0/24
+  default:
+    driver: bridge
+
+########################### SERVICES
+services:
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    env_file:
+      - .env
+    restart: always
+    networks:
+      #- t2_proxy
+      - default
+    ports:
+      - target: 9100
+        published: 9100
+        protocol: tcp
+        mode: host
+    command:
+      - '--path.procfs=/host/proc' 
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+    volumes:
+      - /:/rootfs:ro
+      - /:/host:ro,rslave
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
