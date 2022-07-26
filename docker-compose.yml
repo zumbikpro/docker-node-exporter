@@ -16,7 +16,7 @@ networks:
 ########################### SERVICES
 services:
 
-  node_exporter:
+  node-exporter:
     image: prom/node-exporter:latest
     env_file:
       - .env
